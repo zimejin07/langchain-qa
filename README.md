@@ -1,6 +1,6 @@
 # LangChain + TensorFlow.js + Next.js Demo
 
-This project showcases an innovative AI workflow using LangChain, TensorFlow.js, and Next.js to integrate language processing and image classification within a unified interface.
+A Next.js 15 app demonstrating a hybrid AI workflow: stream LLM responses via LangChain and OpenAI, with client-side image classification using TensorFlow.js (MobileNet). Users can ask text questions or upload images, and AI answers appear live as they are generated.
 
 ## Key Technologies
 
