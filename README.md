@@ -1,8 +1,34 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# LangChain + TensorFlow.js + Next.js Demo
+
+This project showcases an innovative AI workflow using LangChain, TensorFlow.js, and Next.js to integrate language processing and image classification within a unified interface.
+
+## Key Technologies
+
+- **LangChain**: Manages prompt orchestration and LLM (OpenAI) interactions.
+- **TensorFlow.js**: Performs browser-based image classification using MobileNet.
+- **Next.js (App Router)**: Facilitates a seamless frontend and backend environment with streaming AI responses.
+
+## Features
+
+- **Text Interaction**: Pose questions in text form and receive LLM-generated responses that stream live.
+- **Image Analysis**: Upload images for real-time classification via TensorFlow.js; results are automatically converted into questions for the LLM.
+- **Integrated Chat Interface**: Enjoy a cohesive platform for both text and image inputs, with responses dynamically updating the UI.
+
+---
+
+## Tech Stack
+
+- **Next.js 15 (App Router)**
+- **React (Client Components)**
+- **LangChain**
+- **OpenAI API**
+- **TensorFlow.js + MobileNet**
+
+---
 
 ## Getting Started
 
-First, run the development server:
+To initiate the development server:
 
 ```bash
 npm run dev
@@ -14,23 +40,31 @@ pnpm dev
 bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Once started, access the application at [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Learning Resources
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Enhance your understanding of Next.js through these resources:
 
-## Learn More
+- [Next.js Documentation](https://nextjs.org/docs) - Explore features and API details.
+- [Learn Next.js](https://nextjs.org/learn) - Engage in an interactive tutorial.
 
-To learn more about Next.js, take a look at the following resources:
+For further involvement, contribute to [the Next.js GitHub repository](https://github.com/vercel/next.js).
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Deployment on Vercel
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Quickly deploy your Next.js app using [Vercel](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme), the official platform by Next.js creators.
 
-## Deploy on Vercel
+Consult the [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for detailed instructions.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Usage
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. **Text Interaction**:
+
+   - Enter a question into the provided text input field.
+   - The answer is streamed live and appears directly in the user interface.
+
+2. **Image Upload**:
+   - Upload an image via the designated interface.
+   - TensorFlow.js processes the image and classifies it (e.g., "Labrador retriever").
+   - The classification result is converted into a descriptive query, such as "I have an image of Labrador retriever. Tell me something interesting about it," which is then sent to the LangChain backend for processing.

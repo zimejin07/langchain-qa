@@ -1,10 +1,9 @@
-import AskForm from "./components/AskForm";
+import Chat from "./components/Chat";
 
 export default function Home() {
   return (
-    <main>
-      <h1>LangChain Q&A</h1>
-      <AskForm />
+    <main className="p-6">
+      <Chat />
     </main>
   );
 }
