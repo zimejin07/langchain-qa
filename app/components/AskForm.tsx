@@ -1,3 +1,4 @@
+"use client";
 import { useState } from "react";
 
 export default function AskForm() {
@@ -15,7 +16,9 @@ export default function AskForm() {
       body: JSON.stringify({ question }),
     });
 
-    const data = await res.json();
+    console.log(res);
+
+    const data = await res?.json();
     setAnswer(data.answer);
     setLoading(false);
   };
