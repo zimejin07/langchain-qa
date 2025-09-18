@@ -16,8 +16,6 @@ export default function AskForm() {
       body: JSON.stringify({ question }),
     });
 
-    console.log(res);
-
     const data = await res?.json();
     setAnswer(data.answer);
     setLoading(false);
