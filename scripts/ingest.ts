@@ -1,7 +1,7 @@
 // # CLI ingest (node)
 import fs from "fs";
 import path from "path";
-import { PDFLoader } from "langchain/document_loaders/fs/pdf"; // optional
+import { PDFLoader } from "@langchain/community/document_loaders/fs/pdf";
 import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
 import { OpenAIEmbeddings } from "@langchain/openai";
 import { PineconeStore } from "@langchain/pinecone";
@@ -28,7 +28,7 @@ async function main() {
 
   await PineconeStore.fromDocuments(chunks, embeddings, {
     pineconeIndex: pinecone.Index(process.env.PINECONE_INDEX as string),
-    indexName: process.env.PINECONE_INDEX,
+    textKey: process.env.PINECONE_INDEX,
   });
 
   console.log("uploaded", chunks.length, "chunks");
