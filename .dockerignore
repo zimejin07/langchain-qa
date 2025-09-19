@@ -1,0 +1,8 @@
+node_modules
+.next
+Dockerfile
+npm-debug.log
+*.test.tsx
+*.spec.tsx
+__tests__
+coverage
