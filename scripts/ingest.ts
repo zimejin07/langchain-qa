@@ -28,7 +28,6 @@ async function main() {
 
   await PineconeStore.fromDocuments(chunks, embeddings, {
     pineconeIndex: pinecone.Index(process.env.PINECONE_INDEX as string),
-    textKey: process.env.PINECONE_INDEX,
   });
 
   console.log("uploaded", chunks.length, "chunks");

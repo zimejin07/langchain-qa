@@ -7,6 +7,7 @@ export default function ImageClassifier() {
   const [model, setModel] = useState<any>(null);
   const [preds, setPreds] = useState<any[]>([]);
   const [answer, setAnswer] = useState("");
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
   const imgRef = useRef<HTMLImageElement | null>(null);
 
   useEffect(() => {
@@ -29,13 +30,10 @@ export default function ImageClassifier() {
   }, []);
 
   async function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
-    const f = e.target.files?.[0];
-    if (!f) return;
-    const url = URL.createObjectURL(f);
-    if (imgRef.current) imgRef.current.src = url;
-    // small delay to ensure img loaded
-    await new Promise((r) => setTimeout(r, 200));
-    await classifyAndQuery();
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const url = URL.createObjectURL(file);
+    setImagePreview(url); // React will render <img> with this src
   }
 
   async function classifyAndQuery() {
@@ -76,17 +74,86 @@ export default function ImageClassifier() {
   }
 
   return (
-    <div>
-      <input type="file" accept="image/*" onChange={handleFile} />
-      <img ref={imgRef} alt="upload" style={{ maxWidth: 400 }} />
-      <div>
-        {preds.map((p, i) => (
-          <div key={i}>
-            {i + 1}. {p.className} — {(p.probability * 100).toFixed(1)}%
+    <div className="container mx-auto p-4 md:p-8 bg-gray-50 min-h-screen">
+      <div className="max-w-3xl mx-auto bg-white rounded-lg shadow-xl overflow-hidden">
+        <div className="p-6 md:p-8">
+          <h2 className="text-3xl font-bold text-gray-800 mb-6 text-center">
+            Image Uploader & Predictor
+          </h2>
+
+          {/* File Input */}
+          <div className="mb-8">
+            <label
+              htmlFor="file-upload"
+              className="block text-sm font-medium text-gray-700 mb-2"
+            >
+              Upload an image:
+            </label>
+            <input
+              id="file-upload"
+              type="file"
+              accept="image/*"
+              onChange={handleFile}
+              className="block w-full text-sm text-gray-500
+                         file:mr-4 file:py-2 file:px-4
+                         file:rounded-full file:border-0
+                         file:text-sm file:font-semibold
+                         file:bg-blue-50 file:text-blue-700
+                         hover:file:bg-blue-100 cursor-pointer"
+            />
           </div>
-        ))}
+
+          {/* Image Preview */}
+          {imagePreview && (
+            <div className="mb-8 border-2 border-dashed border-gray-300 rounded-lg p-4 flex justify-center items-center overflow-hidden">
+              <img
+                ref={imgRef}
+                src={imagePreview}
+                alt="Uploaded preview"
+                className="max-w-full h-auto max-h-96 rounded-md shadow-md"
+                onLoad={() => {
+                  classifyAndQuery();
+                  URL.revokeObjectURL(imagePreview);
+                }} // Trigger classification upon load
+              />
+            </div>
+          )}
+
+          {/* Prediction Results */}
+          {preds && preds.length > 0 && (
+            <div className="mb-8">
+              <h3 className="text-xl font-semibold text-gray-700 mb-4">
+                Prediction Results:
+              </h3>
+              <ul className="space-y-3">
+                {preds.map((p, i) => (
+                  <li
+                    key={i}
+                    className="flex items-center justify-between p-3 bg-blue-50 rounded-lg shadow-sm"
+                  >
+                    <span className="text-blue-800 font-medium">
+                      {i + 1}. {p.className}
+                    </span>
+                    <span className="text-blue-600 font-bold">
+                      {(p.probability * 100).toFixed(1)}%
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {/* Answer/Additional Info */}
+          {answer && (
+            <div className="mt-6 p-4 bg-gray-100 rounded-lg text-gray-800 text-sm overflow-x-auto">
+              <h3 className="text-lg font-semibold text-gray-700 mb-2">
+                Additional Information:
+              </h3>
+              <pre className="whitespace-pre-wrap font-mono">{answer}</pre>
+            </div>
+          )}
+        </div>
       </div>
-      <pre>{answer}</pre>
     </div>
   );
 }
