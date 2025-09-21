@@ -49,15 +49,15 @@ export async function POST(req: Request) {
     let index;
     try {
       index = pinecone.Index(indexName);
-      
+
       // Test if index exists by trying to get stats
       await index.describeIndexStats();
     } catch (indexError) {
       console.error("Index connection error:", indexError);
       return NextResponse.json(
-        { 
-          error: "Vector database connection failed", 
-          details: "Please ensure your Pinecone index exists and is accessible"
+        {
+          error: "Vector database connection failed",
+          details: "Please ensure your Pinecone index exists and is accessible",
         },
         { status: 500 }
       );
@@ -77,12 +77,12 @@ export async function POST(req: Request) {
 
     // Validate and clean embedding vector
     const vector = Array.isArray(embedding) ? embedding : JSON.parse(embedding);
-    
+
     // Validate embedding dimensions
     if (vector.length !== 1536) {
       return NextResponse.json(
-        { 
-          error: `Embedding dimension mismatch. Expected 1536, got ${vector.length}` 
+        {
+          error: `Embedding dimension mismatch. Expected 1536, got ${vector.length}`,
         },
         { status: 400 }
       );
@@ -109,21 +109,22 @@ export async function POST(req: Request) {
     } catch (searchError) {
       console.error("Vector search error:", searchError);
       return NextResponse.json(
-        { 
-          error: "Vector search failed", 
-          details: "Could not search the knowledge base"
+        {
+          error: "Vector search failed",
+          details: "Could not search the knowledge base",
         },
         { status: 500 }
       );
     }
-
+    console.log("docs with scores", docsWithScores);
     console.log("Docs retrieved:", docsWithScores.length);
 
     // Handle empty results
     if (docsWithScores.length === 0) {
       const stream = new ReadableStream({
         start(controller) {
-          const message = "I couldn't find any relevant information in the knowledge base to answer your question. Please try rephrasing your question or upload more relevant documents.";
+          const message =
+            "I couldn't find any relevant information in the knowledge base to answer your question. Please try rephrasing your question or upload more relevant documents.";
           controller.enqueue(new TextEncoder().encode(message));
           controller.close();
         },
@@ -144,10 +145,13 @@ export async function POST(req: Request) {
       .filter(Boolean)
       .join("\n---\n");
 
+    console.log("for context", context);
+
     if (!context) {
       const stream = new ReadableStream({
         start(controller) {
-          const message = "I found some documents but they don't seem relevant enough to your question. Please try rephrasing or asking about something more specific.";
+          const message =
+            "I found some documents but they don't seem relevant enough to your question. Please try rephrasing or asking about something more specific.";
           controller.enqueue(new TextEncoder().encode(message));
           controller.close();
         },
@@ -189,7 +193,7 @@ Answer:`
       async start(controller) {
         try {
           const fullQuestion = label ? `${label}. ${question}` : question;
-          
+
           const streamResult = await chain.stream({
             context: context,
             question: fullQuestion.trim(),
@@ -199,46 +203,53 @@ Answer:`
           for await (const chunk of streamResult) {
             if (chunk.content) {
               hasContent = true;
-              const token = typeof chunk.content === "string" 
-                ? chunk.content 
-                : JSON.stringify(chunk.content);
+              const token =
+                typeof chunk.content === "string"
+                  ? chunk.content
+                  : JSON.stringify(chunk.content);
               controller.enqueue(new TextEncoder().encode(token));
             }
           }
 
           if (!hasContent) {
-            controller.enqueue(new TextEncoder().encode(
-              "I apologize, but I couldn't generate a proper response. Please try rephrasing your question."
-            ));
+            controller.enqueue(
+              new TextEncoder().encode(
+                "I apologize, but I couldn't generate a proper response. Please try rephrasing your question."
+              )
+            );
           }
 
           controller.close();
         } catch (err) {
           console.error("Error during streaming:", err);
-          
+
           // Send error message to client
-          controller.enqueue(new TextEncoder().encode(
-            "I encountered an error while processing your request. Please try again."
-          ));
+          controller.enqueue(
+            new TextEncoder().encode(
+              "I encountered an error while processing your request. Please try again."
+            )
+          );
           controller.close();
         }
       },
     });
 
     return new NextResponse(stream, {
-      headers: { 
+      headers: {
         "Content-Type": "text/plain; charset=utf-8",
         "Cache-Control": "no-cache",
-        "Connection": "keep-alive",
+        Connection: "keep-alive",
       },
     });
-
   } catch (err) {
     console.error("Fatal error in /api/query-rag:", err);
     return NextResponse.json(
-      { 
-        error: "Internal server error", 
-        details: process.env.NODE_ENV === 'development' ? String(err) : "Please try again later"
+      {
+        error: "Internal server error",
+        details:
+          process.env.NODE_ENV === "development"
+            ? String(err)
+            : "Please try again later",
       },
       { status: 500 }
     );

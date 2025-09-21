@@ -94,6 +94,68 @@ export default function ImageClassifier() {
     setImagePreview(url);
   }
 
+  // async function classifyAndQuery() {
+  //   if (!model || !imgRef.current || !question.trim()) return;
+
+  //   setIsProcessing(true);
+  //   setError(null);
+
+  //   try {
+  //     const topk = 3;
+  //     const classifications = await model.classify(imgRef.current, topk);
+  //     setPreds(classifications);
+
+  //     // Get embedding via infer
+  //     const activation = model.infer(imgRef.current, "conv_preds");
+  //     const arr = await activation.data();
+  //     const embedding = Array.from(arr as Float32Array);
+
+  //     // Clean up tensor
+  //     activation.dispose();
+
+  //     const resp = await fetch("/api/query-rag", {
+  //       method: "POST",
+  //       body: JSON.stringify({
+  //         embedding,
+  //         question: question.trim(),
+  //         label: classifications[0]?.className,
+  //       }),
+  //       headers: { "Content-Type": "application/json" },
+  //     });
+
+  //     if (!resp.ok) {
+  //       throw new Error(
+  //         `API request failed: ${resp.status} ${resp.statusText}`
+  //       );
+  //     }
+
+  //     if (!resp.body) {
+  //       throw new Error("No response body received");
+  //     }
+
+  //     const reader = resp.body.getReader();
+  //     const decoder = new TextDecoder();
+  //     let partial = "";
+
+  //     while (true) {
+  //       const { done, value } = await reader.read();
+  //       if (done) break;
+  //       partial += decoder.decode(value, { stream: true });
+  //       setAnswer(partial);
+  //     }
+  //   } catch (error) {
+  //     console.error("Classification/Query error:", error);
+  //     setError(
+  //       error instanceof Error
+  //         ? error.message
+  //         : "Failed to process image and query"
+  //     );
+  //   } finally {
+  //     setIsProcessing(false);
+  //   }
+  // }
+  // Replace your classifyAndQuery function with this:
+
   async function classifyAndQuery() {
     if (!model || !imgRef.current || !question.trim()) return;
 
@@ -105,20 +167,27 @@ export default function ImageClassifier() {
       const classifications = await model.classify(imgRef.current, topk);
       setPreds(classifications);
 
-      // Get embedding via infer
-      const activation = model.infer(imgRef.current, "conv_preds");
-      const arr = await activation.data();
-      const embedding = Array.from(arr as Float32Array);
+      // Get the top classification
+      const topClassification =
+        classifications[0]?.className || "unknown object";
 
-      // Clean up tensor
-      activation.dispose();
+      // FIXED: Generate OpenAI-compatible embedding instead of TensorFlow embedding
+      const compatibleEmbedding = await generateCompatibleEmbedding(
+        topClassification,
+        question.trim()
+      );
+
+      console.log(
+        "Generated compatible embedding with dimensions:",
+        compatibleEmbedding.length
+      );
 
       const resp = await fetch("/api/query-rag", {
         method: "POST",
         body: JSON.stringify({
-          embedding,
+          embedding: compatibleEmbedding, // Now using 1536-dimensional embedding
           question: question.trim(),
-          label: classifications[0]?.className,
+          label: topClassification,
         }),
         headers: { "Content-Type": "application/json" },
       });
@@ -152,6 +221,37 @@ export default function ImageClassifier() {
       );
     } finally {
       setIsProcessing(false);
+    }
+  }
+
+  // Add this helper function to your component:
+  async function generateCompatibleEmbedding(
+    imageClassification: string,
+    questionText: string
+  ): Promise<number[]> {
+    try {
+      // Combine image classification with question for better context
+      const combinedText = `Image contains: ${imageClassification}. Question: ${questionText}`;
+
+      // Call OpenAI embeddings API to get 1536-dimensional embedding
+      const response = await fetch("/api/generate-embedding", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text: combinedText }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(
+          errorData.error || `Embedding API failed: ${response.status}`
+        );
+      }
+
+      const data = await response.json();
+      return data.embedding;
+    } catch (error) {
+      console.error("Error generating compatible embedding:", error);
+      throw new Error("Failed to generate embedding for RAG search");
     }
   }
 
