@@ -94,68 +94,6 @@ export default function ImageClassifier() {
     setImagePreview(url);
   }
 
-  // async function classifyAndQuery() {
-  //   if (!model || !imgRef.current || !question.trim()) return;
-
-  //   setIsProcessing(true);
-  //   setError(null);
-
-  //   try {
-  //     const topk = 3;
-  //     const classifications = await model.classify(imgRef.current, topk);
-  //     setPreds(classifications);
-
-  //     // Get embedding via infer
-  //     const activation = model.infer(imgRef.current, "conv_preds");
-  //     const arr = await activation.data();
-  //     const embedding = Array.from(arr as Float32Array);
-
-  //     // Clean up tensor
-  //     activation.dispose();
-
-  //     const resp = await fetch("/api/query-rag", {
-  //       method: "POST",
-  //       body: JSON.stringify({
-  //         embedding,
-  //         question: question.trim(),
-  //         label: classifications[0]?.className,
-  //       }),
-  //       headers: { "Content-Type": "application/json" },
-  //     });
-
-  //     if (!resp.ok) {
-  //       throw new Error(
-  //         `API request failed: ${resp.status} ${resp.statusText}`
-  //       );
-  //     }
-
-  //     if (!resp.body) {
-  //       throw new Error("No response body received");
-  //     }
-
-  //     const reader = resp.body.getReader();
-  //     const decoder = new TextDecoder();
-  //     let partial = "";
-
-  //     while (true) {
-  //       const { done, value } = await reader.read();
-  //       if (done) break;
-  //       partial += decoder.decode(value, { stream: true });
-  //       setAnswer(partial);
-  //     }
-  //   } catch (error) {
-  //     console.error("Classification/Query error:", error);
-  //     setError(
-  //       error instanceof Error
-  //         ? error.message
-  //         : "Failed to process image and query"
-  //     );
-  //   } finally {
-  //     setIsProcessing(false);
-  //   }
-  // }
-  // Replace your classifyAndQuery function with this:
-
   async function classifyAndQuery() {
     if (!model || !imgRef.current || !question.trim()) return;
 
