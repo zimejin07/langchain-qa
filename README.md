@@ -1,3 +1,7 @@
+# Argument for local llm feature - https://github.com/ggml-org/llama.vscode
+
+Issue-ticket: https://github.com/zimejin07/langchain-qa/issues/2
+
 # AI Assistant Platform with RAG Technology
 
 A sophisticated Next.js 15 application showcasing advanced AI capabilities through **Retrieval-Augmented Generation (RAG)** technology. The platform combines real-time image classification with intelligent document retrieval to provide contextual, knowledge-based responses.
