@@ -57,9 +57,9 @@ export default function ImageClassifier() {
 
       // Attempt to save underlying layers model to IndexedDB for later reuse
       try {
-        // @ts-ignore mobilenet returns an object with .model (tf.LayersModel)
+        // @ts-expect-error mobilenet returns an object with .model (tf.LayersModel)
         if (m?.model?.save) {
-          // @ts-ignore mobilenet returns an object with .model (tf.LayersModel)
+          // @ts-expect-error mobilenet returns an object with .model (tf.LayersModel)
           await m.model.save("indexeddb://mobilenet-v1");
           console.log("Model cached to IndexedDB");
         }
@@ -112,7 +112,7 @@ export default function ImageClassifier() {
 
     try {
       const topk = 3;
-      // @ts-ignore
+      // @ts-expect-error
       const classifications = await model.classify(imgRef.current, topk);
       setPreds(classifications);
 
