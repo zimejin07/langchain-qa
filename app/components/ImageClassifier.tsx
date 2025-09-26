@@ -17,13 +17,6 @@ type Classification = {
   probability: number;
 };
 
-interface Classifiable {
-  classify(
-    input: HTMLImageElement | HTMLCanvasElement | ImageData,
-    topk?: number
-  ): Promise<any>;
-}
-
 type ModelType =
   | (mobilenet.MobileNet & { model?: tf.LayersModel })
   | tf.LayersModel
