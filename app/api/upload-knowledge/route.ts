@@ -4,11 +4,6 @@ import { Pinecone } from "@pinecone-database/pinecone";
 import { OpenAIEmbeddings } from "@langchain/openai";
 import { PineconeStore } from "@langchain/pinecone";
 import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
-import { Document } from "@langchain/core/documents";
-import * as pdfjsLib from "pdfjs-dist";
-
-// Configure PDF.js worker
-pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js`;
 
 export async function POST(req: NextRequest) {
   try {
@@ -139,21 +134,38 @@ export async function POST(req: NextRequest) {
 
 async function extractTextFromPDF(file: File): Promise<string> {
   try {
-    const arrayBuffer = await file.arrayBuffer();
-    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-    let fullText = "";
-
-    for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
-      const page = await pdf.getPage(pageNum);
-      const textContent = await page.getTextContent();
-      const pageText = textContent.items.map((item: any) => item.str).join(" ");
-      fullText += pageText + "\n";
+    // Dynamic import with proper error handling
+    let pdf;
+    try {
+      const pdfParse = await import("pdf-parse");
+      pdf = pdfParse.default || pdfParse;
+    } catch (importError) {
+      console.error("Failed to import pdf-parse:", importError);
+      throw new Error("PDF parsing library not available");
     }
 
-    return fullText;
+    const arrayBuffer = await file.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+
+    // Parse PDF with pdf-parse library
+    const data = await pdf(buffer);
+
+    if (!data.text || data.text.trim().length === 0) {
+      throw new Error("No text content found in PDF");
+    }
+
+    console.log(
+      `PDF extraction successful: ${data.numpages} pages, ${data.text.length} characters`
+    );
+
+    return data.text.trim();
   } catch (error) {
     console.error("Error extracting PDF text:", error);
-    throw new Error("Failed to extract text from PDF");
+    throw new Error(
+      `Failed to extract text from PDF: ${
+        error instanceof Error ? error.message : String(error)
+      }`
+    );
   }
 }
 
