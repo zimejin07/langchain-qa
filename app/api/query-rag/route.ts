@@ -89,7 +89,7 @@ export async function POST(req: Request) {
     }
 
     // Ensure all values are numbers
-    const cleanVector = vector.map((val: any) => {
+    const cleanVector = vector.map((val: unknown) => {
       const num = Number(val);
       if (isNaN(num)) {
         throw new Error("Embedding contains non-numeric values");
@@ -139,7 +139,7 @@ export async function POST(req: Request) {
     const context = docsWithScores
       .map(([doc, score]) => {
         // Filter out very low relevance scores
-        if (score < 0.3) return null;
+        if (score < -0.1) return null;
         return `(Score: ${score.toFixed(4)}) ${doc.pageContent.trim()}`;
       })
       .filter(Boolean)

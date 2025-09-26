@@ -25,10 +25,10 @@ export async function POST(req: Request) {
     const embedding = embeddingResp.data[0].embedding;
 
     return NextResponse.json({ embedding });
-  } catch (err: any) {
+  } catch (err) {
     console.error("Embedding error:", err);
     return NextResponse.json(
-      { error: "Failed to generate embedding", details: err.message },
+      { error: "Failed to generate embedding", details: err },
       { status: 500 }
     );
   }
