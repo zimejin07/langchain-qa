@@ -12,10 +12,27 @@ import {
 import * as mobilenet from "@tensorflow-models/mobilenet";
 import * as tf from "@tensorflow/tfjs";
 
+type Classification = {
+  className: string;
+  probability: number;
+};
+
+interface Classifiable {
+  classify(
+    input: HTMLImageElement | HTMLCanvasElement | ImageData,
+    topk?: number
+  ): Promise<any>;
+}
+
+type ModelType =
+  | (mobilenet.MobileNet & { model?: tf.LayersModel })
+  | tf.LayersModel
+  | null;
+
 export default function ImageClassifier() {
-  const [model, setModel] = useState<any>(null);
+  const [model, setModel] = useState<ModelType>(null);
   const [modelLoading, setModelLoading] = useState(true);
-  const [preds, setPreds] = useState<any[]>([]);
+  const [preds, setPreds] = useState<Classification[]>([]);
   const [question, setQuestion] = useState("");
   const [answer, setAnswer] = useState("");
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -36,7 +53,7 @@ export default function ImageClassifier() {
       // Try load cached model from IndexedDB first
       try {
         const loaded = await tf.loadLayersModel("indexeddb://mobilenet-v1");
-        setModel({ model: loaded });
+        setModel(loaded);
         console.log("Loaded cached model from IndexedDB");
         return;
       } catch {
@@ -102,6 +119,7 @@ export default function ImageClassifier() {
 
     try {
       const topk = 3;
+      // @ts-ignore
       const classifications = await model.classify(imgRef.current, topk);
       setPreds(classifications);
 
